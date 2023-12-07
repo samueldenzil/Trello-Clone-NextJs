@@ -1,13 +1,33 @@
+import { auth } from '@clerk/nextjs'
+import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
+import prisma from '@/lib/db'
 import { publicProcedure, router } from './trpc'
 
 export const appRouter = router({
-  createBoard: publicProcedure.input(z.object({ title: z.string() })).mutation(({ input }) => {
-    console.log('the title is ', input.title)
+  createBoard: publicProcedure
+    .input(z.object({ title: z.string() }))
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
 
-    return { success: true }
-  }),
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { title } = input
+      try {
+        const board = await prisma.board.create({
+          data: {
+            title,
+          },
+        })
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+
+      return { success: true }
+    }),
 })
 
 // export type definition of API
