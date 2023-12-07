@@ -1,3 +1,9 @@
+import { FormBackup } from './_components/form-backup'
+
 export default function OrganizationIdPage() {
-  return <div>OrganizationIdPage</div>
+  return (
+    <div>
+      <FormBackup />
+    </div>
+  )
 }
