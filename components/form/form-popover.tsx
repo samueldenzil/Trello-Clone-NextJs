@@ -2,16 +2,22 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ElementRef, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  CreateBoardValidator,
+  TCreateBoardValidator,
+} from '@/lib/validators/create-board-validator'
 import { trpc } from '@/trpc/client'
-import { toast } from 'sonner'
+import { FormPicker } from './form-picker'
 
 type FormPopoverProps = {
   children: React.ReactNode
@@ -26,29 +32,29 @@ export function FormPopover({
   side = 'bottom',
   sideOffset = 0,
 }: FormPopoverProps) {
+  const router = useRouter()
+  const closeRef = useRef<ElementRef<'button'>>(null)
+
+  const form = useForm<TCreateBoardValidator>({
+    resolver: zodResolver(CreateBoardValidator),
+  })
+
   const createBoard = trpc.createBoard.useMutation({
-    onSuccess: () => {
+    onSuccess: ({ board }) => {
       toast.success('Board created!')
+      closeRef.current?.click()
+      form.reset()
+      router.push(`/board/${board.id}`)
     },
     onError: (err) => {
       toast.error(err.message)
     },
   })
 
-  const formSchema = z.object({
-    title: z.string().min(3, { message: 'Title is too short.' }),
-  })
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-    },
-  })
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const { title } = values
-    createBoard.mutate({ title })
+  function onSubmit(values: TCreateBoardValidator) {
+    const { title, image } = values
+    console.log(values)
+    createBoard.mutate({ title, image })
   }
 
   return (
@@ -56,7 +62,7 @@ export function FormPopover({
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent align={align} side={side} sideOffset={sideOffset} className="w-80 pt-3">
         <div className="pb-4 text-center text-sm font-medium text-neutral-600">Create board</div>
-        <PopoverClose asChild>
+        <PopoverClose asChild ref={closeRef}>
           <Button
             variant="ghost"
             className="absolute right-2 top-2 h-auto w-auto p-2 text-neutral-600"
@@ -67,6 +73,26 @@ export function FormPopover({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FormPicker
+                      onClick={(value) =>
+                        form.setValue(field.name, value, {
+                          shouldDirty: true,
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        })
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="title"
@@ -82,7 +108,7 @@ export function FormPopover({
                 </FormItem>
               )}
             />
-            <Button className="w-full" size="sm" type="submit">
+            <Button className="w-full" size="sm" variant="primary" type="submit">
               Create
             </Button>
           </form>

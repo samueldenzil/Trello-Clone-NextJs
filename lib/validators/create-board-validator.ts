@@ -1,0 +1,11 @@
+import { z } from 'zod'
+
+export const CreateBoardValidator = z.object({
+  title: z.string().min(3, { message: 'Title is too short.' }),
+  image: z.string({
+    required_error: 'Image is required.',
+    invalid_type_error: 'Image is required.',
+  }),
+})
+
+export type TCreateBoardValidator = z.infer<typeof CreateBoardValidator>
