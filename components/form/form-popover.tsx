@@ -39,7 +39,7 @@ export function FormPopover({
     resolver: zodResolver(CreateBoardValidator),
   })
 
-  const createBoard = trpc.createBoard.useMutation({
+  const { mutate, isLoading } = trpc.createBoard.useMutation({
     onSuccess: ({ board }) => {
       toast.success('Board created!')
       closeRef.current?.click()
@@ -54,7 +54,7 @@ export function FormPopover({
   function onSubmit(values: TCreateBoardValidator) {
     const { title, image } = values
     console.log(values)
-    createBoard.mutate({ title, image })
+    mutate({ title, image })
   }
 
   return (
@@ -102,13 +102,24 @@ export function FormPopover({
                     Board Title
                   </Label>
                   <FormControl>
-                    <Input placeholder="Enter title" {...field} className="h-7 px-2 py-1 text-sm" />
+                    <Input
+                      placeholder="Enter title"
+                      {...field}
+                      className="h-7 px-2 py-1 text-sm"
+                      disabled={isLoading}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button className="w-full" size="sm" variant="primary" type="submit">
+            <Button
+              className="w-full"
+              size="sm"
+              variant="primary"
+              type="submit"
+              disabled={isLoading}
+            >
               Create
             </Button>
           </form>
