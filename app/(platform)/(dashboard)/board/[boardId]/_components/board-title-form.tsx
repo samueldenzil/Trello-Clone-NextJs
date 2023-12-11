@@ -38,7 +38,7 @@ export function BoardTitleForm({ data }: BoardTitleFormProps) {
     defaultValues: data,
   })
 
-  const { mutate } = trpc.updateBoardTitle.useMutation({
+  const { mutate, isLoading } = trpc.updateBoardTitle.useMutation({
     onSuccess: (data) => {
       toast.success(`Board "${data.title}" updated!`)
       document.title = `${data.title} | Taskify`
@@ -78,6 +78,7 @@ export function BoardTitleForm({ data }: BoardTitleFormProps) {
                     {...field}
                     className="h-7 border-none bg-transparent px-2 py-1 text-lg font-bold focus-visible:outline-none focus-visible:ring-transparent focus-visible:ring-offset-0"
                     ref={inputRef}
+                    disabled={isLoading}
                     onBlur={onBlur}
                   />
                 </FormControl>
