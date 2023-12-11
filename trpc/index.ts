@@ -161,6 +161,43 @@ export const appRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
       }
     }),
+
+  updateList: publicProcedure
+    .input(
+      z.object({
+        boardId: z.string(),
+        id: z.string(),
+        title: z.string().min(3, { message: 'Minimum 3 chars required.' }),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { boardId, id, title } = input
+
+      try {
+        const list = await prisma.list.update({
+          where: {
+            id,
+            boardId,
+            board: {
+              orgId,
+            },
+          },
+          data: {
+            title,
+          },
+        })
+
+        return list
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
 })
 
 // export type definition of API
