@@ -65,7 +65,7 @@ export function ListForm() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    // console.log(values)
     mutate({ boardId: params.boardId as string, title: values.title })
   }
 

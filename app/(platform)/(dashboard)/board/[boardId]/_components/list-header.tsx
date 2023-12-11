@@ -63,7 +63,7 @@ export function ListHeader({ data }: ListHeaderProps) {
     if (title === data.title) {
       return disableEditing()
     }
-    console.log(values)
+    // console.log(values)
 
     mutate({ boardId, id, title })
   }

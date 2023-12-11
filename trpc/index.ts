@@ -17,7 +17,7 @@ export const appRouter = router({
     const { title, image } = input
     const [imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName] = image.split('|')
 
-    console.log({ imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName })
+    // console.log({ imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName })
 
     if (!imageId || !imageThumbUrl || !imageFullUrl || !imageLinkHTML || !imageUserName) {
       throw new TRPCError({

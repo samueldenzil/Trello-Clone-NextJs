@@ -53,7 +53,7 @@ export function FormPopover({
 
   function onSubmit(values: TCreateBoardValidator) {
     const { title, image } = values
-    console.log(values)
+    // console.log(values)
     mutate({ title, image })
   }
 
