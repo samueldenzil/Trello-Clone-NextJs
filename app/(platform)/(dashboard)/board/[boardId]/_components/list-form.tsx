@@ -52,7 +52,7 @@ export function ListForm() {
     },
   })
 
-  const { mutate } = trpc.createList.useMutation({
+  const { mutate, isLoading } = trpc.createList.useMutation({
     onSuccess: (list) => {
       toast.success(`List "${list.title}" created`)
       disableEditing()
@@ -91,6 +91,7 @@ export function ListForm() {
                       placeholder="Enter list title..."
                       {...field}
                       ref={inputRef}
+                      disabled={isLoading}
                       className="h-7 border-transparent px-2 py-1 text-sm font-medium transition hover:border-input focus:border-input"
                     />
                   </FormControl>
@@ -99,12 +100,7 @@ export function ListForm() {
               )}
             />
             <div className="flex items-center gap-x-1">
-              <Button
-                // disabled={pending || disabled}
-                type="submit"
-                variant="primary"
-                size="sm"
-              >
+              <Button type="submit" variant="primary" size="sm" disabled={isLoading}>
                 Add list
               </Button>
               <Button onClick={disableEditing} size="sm" variant="ghost">
