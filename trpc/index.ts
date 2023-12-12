@@ -303,6 +303,66 @@ export const appRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
       }
     }),
+
+  createCard: publicProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        boardId: z.string(),
+        listId: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { boardId, listId, title } = input
+
+      try {
+        const list = await prisma.list.findUnique({
+          where: {
+            id: listId,
+            boardId,
+            board: {
+              orgId,
+            },
+          },
+        })
+
+        if (!list) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' })
+        }
+
+        const lastCard = await prisma.card.findFirst({
+          where: {
+            listId,
+          },
+          orderBy: {
+            order: 'desc',
+          },
+          select: {
+            order: true,
+          },
+        })
+
+        const newOrder = lastCard ? lastCard.order + 1 : 1
+
+        const card = await prisma.card.create({
+          data: {
+            title,
+            listId,
+            order: newOrder,
+          },
+        })
+
+        return { card }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
 })
 
 // export type definition of API
