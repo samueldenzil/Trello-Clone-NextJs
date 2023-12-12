@@ -363,6 +363,102 @@ export const appRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
       }
     }),
+
+  updateListOrder: publicProcedure
+    .input(
+      z.object({
+        boardId: z.string(),
+        items: z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            order: z.number(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { boardId, items } = input
+
+      try {
+        const transaction = items.map((list) =>
+          prisma.list.update({
+            where: {
+              id: list.id,
+              boardId,
+              board: {
+                orgId,
+              },
+            },
+            data: {
+              order: list.order,
+            },
+          })
+        )
+
+        const lists = await prisma.$transaction(transaction)
+
+        return { lists }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong` })
+      }
+    }),
+
+  updateCardOrder: publicProcedure
+    .input(
+      z.object({
+        boardId: z.string(),
+        items: z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            order: z.number(),
+            listId: z.string(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { boardId, items } = input
+
+      try {
+        const transaction = items.map((card) =>
+          prisma.card.update({
+            where: {
+              id: card.id,
+              list: {
+                boardId,
+                board: {
+                  orgId,
+                },
+              },
+            },
+            data: {
+              order: card.order,
+              listId: card.listId,
+            },
+          })
+        )
+
+        const updatedCards = await prisma.$transaction(transaction)
+
+        return { updatedCards }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong` })
+      }
+    }),
 })
 
 // export type definition of API
