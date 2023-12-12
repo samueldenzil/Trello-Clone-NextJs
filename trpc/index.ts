@@ -198,6 +198,111 @@ export const appRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
       }
     }),
+
+  deleteList: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        boardId: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { boardId, id } = input
+
+      try {
+        const list = await prisma.list.delete({
+          where: {
+            id,
+            boardId,
+            board: {
+              orgId,
+            },
+          },
+        })
+
+        return list
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
+
+  copyList: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        boardId: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { boardId, id } = input
+
+      try {
+        const listToCopy = await prisma.list.findUnique({
+          where: {
+            id,
+            boardId,
+            board: {
+              orgId,
+            },
+          },
+          include: {
+            cards: true,
+          },
+        })
+
+        if (!listToCopy) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' })
+        }
+
+        const lastList = await prisma.list.findFirst({
+          where: {
+            boardId,
+          },
+          orderBy: {
+            order: 'desc',
+          },
+          select: { order: true },
+        })
+
+        const newOrder = lastList ? lastList.order + 1 : 1
+
+        const list = await prisma.list.create({
+          data: {
+            boardId: listToCopy.boardId,
+            title: `${listToCopy.title} - Copy`,
+            order: newOrder,
+            cards: {
+              createMany: {
+                data: listToCopy.cards.map((card) => ({
+                  title: card.title,
+                  description: card.description,
+                  order: card.order,
+                })),
+              },
+            },
+          },
+          include: {
+            cards: true,
+          },
+        })
+
+        return { list }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
 })
 
 // export type definition of API

@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { trpc } from '@/trpc/client'
+import { ListOptions } from './list-options'
 
 type ListHeaderProps = {
   data: List
@@ -114,6 +115,8 @@ export function ListHeader({ data }: ListHeaderProps) {
           {form.getValues('title')}
         </div>
       )}
+
+      <ListOptions data={data} onAddCart={() => {}} />
     </div>
   )
 }
