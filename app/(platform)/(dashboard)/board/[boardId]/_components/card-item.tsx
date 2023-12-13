@@ -1,5 +1,7 @@
-import { Card } from '@prisma/client'
 import { Draggable } from '@hello-pangea/dnd'
+import { Card } from '@prisma/client'
+
+import { useCardModal } from '@/hooks/use-card-modal'
 
 type CardItemProps = {
   data: Card
@@ -7,6 +9,8 @@ type CardItemProps = {
 }
 
 export function CardItem({ data, index }: CardItemProps) {
+  const { onOpen } = useCardModal()
+
   return (
     <Draggable draggableId={data.id} index={index}>
       {(provided) => (
@@ -16,6 +20,7 @@ export function CardItem({ data, index }: CardItemProps) {
           ref={provided.innerRef}
           className="truncate rounded-md border-2 border-transparent bg-white px-3 py-2 text-sm shadow-sm hover:border-black"
           role="button"
+          onClick={() => onOpen(data.id)}
         >
           {data.title}
         </div>

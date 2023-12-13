@@ -459,6 +459,92 @@ export const appRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong` })
       }
     }),
+
+  getCard: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { id } = input
+
+      try {
+        const card = await prisma.card.findUnique({
+          where: {
+            id,
+            list: {
+              board: {
+                orgId,
+              },
+            },
+          },
+          include: {
+            list: {
+              select: {
+                title: true,
+              },
+            },
+          },
+        })
+
+        return card
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Something went wrong' })
+      }
+    }),
+
+  updateCard: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        boardId: z.string(),
+        title: z.string().min(3, { message: 'Title is too short.' }),
+        description: z
+          .string({
+            required_error: 'Description is required',
+            invalid_type_error: 'Description is required',
+          })
+          .min(3, { message: 'Description is too short.' }),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { boardId, description, id, title } = input
+
+      try {
+        const card = await prisma.card.update({
+          where: {
+            id,
+            list: {
+              boardId,
+              board: {
+                orgId,
+              },
+            },
+          },
+          data: {
+            title,
+            description,
+          },
+        })
+
+        return { card }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
 })
 
 // export type definition of API
