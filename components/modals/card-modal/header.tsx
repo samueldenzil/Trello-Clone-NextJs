@@ -13,14 +13,16 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { trpc } from '@/trpc/client'
 import { CardWithList } from '@/types'
+import { useCardModal } from '@/hooks/use-card-modal'
 
 type HeaderProps = {
-  refetch: any
+  refetchCard: any
   data: CardWithList
 }
 
-export function Header({ data, refetch }: HeaderProps) {
+export function Header({ data, refetchCard }: HeaderProps) {
   const params = useParams()
+  const { refetchLists } = useCardModal()
 
   const inputRef = useRef<ElementRef<'input'>>(null)
 
@@ -41,7 +43,8 @@ export function Header({ data, refetch }: HeaderProps) {
     onSuccess: ({ card }) => {
       toast.success(`Renamed to "${card.title}"`)
       form.setValue('title', card.title)
-      refetch()
+      refetchLists()
+      refetchCard()
     },
     onError: (err) => {
       toast.error(err.data?.code)

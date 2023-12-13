@@ -1,15 +1,21 @@
 import { Draggable } from '@hello-pangea/dnd'
 import { Card } from '@prisma/client'
+import { useEffect } from 'react'
 
 import { useCardModal } from '@/hooks/use-card-modal'
 
 type CardItemProps = {
   data: Card
   index: number
+  refetchLists: any
 }
 
-export function CardItem({ data, index }: CardItemProps) {
-  const { onOpen } = useCardModal()
+export function CardItem({ data, index, refetchLists }: CardItemProps) {
+  const { onOpen, setRefetchLists } = useCardModal()
+
+  useEffect(() => {
+    setRefetchLists(refetchLists)
+  }, [refetchLists, setRefetchLists])
 
   return (
     <Draggable draggableId={data.id} index={index}>

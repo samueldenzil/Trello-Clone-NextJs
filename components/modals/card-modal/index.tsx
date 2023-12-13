@@ -1,5 +1,3 @@
-import { useRouter } from 'next/navigation'
-
 import {
   Dialog,
   DialogContent,
@@ -13,7 +11,6 @@ import { CardWithList } from '@/types'
 import { Header } from './header'
 
 export function CardModal() {
-  const router = useRouter()
   const { isOpen, onClose, onOpen, id } = useCardModal()
 
   const { data: cardData, refetch: refetchCard } = trpc.getCard.useQuery({
@@ -21,19 +18,13 @@ export function CardModal() {
   })
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={() => {
-        onClose()
-        router.refresh()
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           {!cardData ? (
             <Header.Skeleton />
           ) : (
-            <Header data={cardData as unknown as CardWithList} refetch={refetchCard} />
+            <Header data={cardData as any} refetchCard={refetchCard} />
           )}
           <DialogTitle>{cardData?.title}</DialogTitle>
           <DialogDescription>

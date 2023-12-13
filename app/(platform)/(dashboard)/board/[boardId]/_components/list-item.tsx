@@ -55,7 +55,7 @@ export function ListItem({ data, index, refetchLists }: ListItemProps) {
                   )}
                 >
                   {data.cards.map((card, index) => (
-                    <CardItem data={card} index={index} key={card.id} />
+                    <CardItem data={card} index={index} refetchLists={refetchLists} key={card.id} />
                   ))}
                   {provided.placeholder}
                 </ol>
