@@ -18,9 +18,15 @@ type DescriptionProps = {
   data: CardWithList
   refetchCard: any
   refetchLists: any
+  refetchAuditLogs: any
 }
 
-export function Description({ data, refetchCard, refetchLists }: DescriptionProps) {
+export function Description({
+  data,
+  refetchCard,
+  refetchLists,
+  refetchAuditLogs,
+}: DescriptionProps) {
   const params = useParams()
   const [isEditing, setIsEditing] = useState(false)
 
@@ -44,6 +50,7 @@ export function Description({ data, refetchCard, refetchLists }: DescriptionProp
       disableEditing()
       refetchLists()
       refetchCard()
+      refetchAuditLogs()
     },
     onError: (err) => {
       toast.error(err.data?.code)

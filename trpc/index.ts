@@ -1,7 +1,9 @@
 import { auth } from '@clerk/nextjs'
+import { ACTION, ENTITY_TYPE } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
+import { createAuditLog } from '@/lib/create-audit-log'
 import prisma from '@/lib/db'
 import { CreateBoardValidator } from '@/lib/validators/create-board-validator'
 import { publicProcedure, router } from './trpc'
@@ -62,6 +64,13 @@ export const appRouter = router({
         },
       })
 
+      await createAuditLog({
+        entityId: board.id,
+        entityTitle: board.title,
+        entityType: ENTITY_TYPE.BOARD,
+        action: ACTION.CREATE,
+      })
+
       return { success: true, board }
     } catch (error) {
       throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
@@ -102,6 +111,13 @@ export const appRouter = router({
           },
         })
 
+        await createAuditLog({
+          entityId: board.id,
+          entityTitle: board.title,
+          entityType: ENTITY_TYPE.BOARD,
+          action: ACTION.UPDATE,
+        })
+
         return board
       } catch (error) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
@@ -118,11 +134,18 @@ export const appRouter = router({
     const { id } = input
 
     try {
-      await prisma.board.delete({
+      const board = await prisma.board.delete({
         where: {
           id,
           orgId,
         },
+      })
+
+      await createAuditLog({
+        entityId: board.id,
+        entityTitle: board.title,
+        entityType: ENTITY_TYPE.BOARD,
+        action: ACTION.DELETE,
       })
 
       return { success: true, orgId }
@@ -177,6 +200,13 @@ export const appRouter = router({
             boardId,
             order: newOrder,
           },
+        })
+
+        await createAuditLog({
+          entityId: list.id,
+          entityTitle: list.title,
+          entityType: ENTITY_TYPE.LIST,
+          action: ACTION.CREATE,
         })
 
         return list
@@ -251,6 +281,13 @@ export const appRouter = router({
           },
         })
 
+        await createAuditLog({
+          entityId: list.id,
+          entityTitle: list.title,
+          entityType: ENTITY_TYPE.LIST,
+          action: ACTION.UPDATE,
+        })
+
         return list
       } catch (error) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
@@ -282,6 +319,13 @@ export const appRouter = router({
               orgId,
             },
           },
+        })
+
+        await createAuditLog({
+          entityId: list.id,
+          entityTitle: list.title,
+          entityType: ENTITY_TYPE.LIST,
+          action: ACTION.DELETE,
         })
 
         return list
@@ -356,6 +400,13 @@ export const appRouter = router({
           },
         })
 
+        await createAuditLog({
+          entityId: list.id,
+          entityTitle: list.title,
+          entityType: ENTITY_TYPE.LIST,
+          action: ACTION.CREATE,
+        })
+
         return { list }
       } catch (error) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
@@ -414,6 +465,13 @@ export const appRouter = router({
             listId,
             order: newOrder,
           },
+        })
+
+        await createAuditLog({
+          entityId: card.id,
+          entityTitle: card.title,
+          entityType: ENTITY_TYPE.CARD,
+          action: ACTION.CREATE,
         })
 
         return { card }
@@ -605,6 +663,13 @@ export const appRouter = router({
           },
         })
 
+        await createAuditLog({
+          entityId: card.id,
+          entityTitle: card.title,
+          entityType: ENTITY_TYPE.CARD,
+          action: ACTION.UPDATE,
+        })
+
         return { card }
       } catch (error) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
@@ -668,6 +733,13 @@ export const appRouter = router({
           },
         })
 
+        await createAuditLog({
+          entityId: card.id,
+          entityTitle: card.title,
+          entityType: ENTITY_TYPE.CARD,
+          action: ACTION.CREATE,
+        })
+
         return { card }
       } catch (error) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
@@ -698,7 +770,48 @@ export const appRouter = router({
           },
         })
 
+        await createAuditLog({
+          entityId: card.id,
+          entityTitle: card.title,
+          entityType: ENTITY_TYPE.CARD,
+          action: ACTION.DELETE,
+        })
+
         return { card }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
+
+  getLogs: publicProcedure
+    .input(
+      z.object({
+        cardId: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { cardId } = input
+
+      try {
+        const auditLogs = await prisma.auditLog.findMany({
+          where: {
+            orgId,
+            entityId: cardId,
+            entityType: ENTITY_TYPE.CARD,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 3,
+        })
+
+        return auditLogs
       } catch (error) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
       }

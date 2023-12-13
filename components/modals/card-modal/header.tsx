@@ -18,9 +18,10 @@ type HeaderProps = {
   data: CardWithList
   refetchCard: any
   refetchLists: any
+  refetchAuditLogs: any
 }
 
-export function Header({ data, refetchCard, refetchLists }: HeaderProps) {
+export function Header({ data, refetchCard, refetchLists, refetchAuditLogs }: HeaderProps) {
   const params = useParams()
 
   const inputRef = useRef<ElementRef<'input'>>(null)
@@ -42,6 +43,7 @@ export function Header({ data, refetchCard, refetchLists }: HeaderProps) {
       form.setValue('title', card.title)
       refetchLists()
       refetchCard()
+      refetchAuditLogs()
     },
     onError: (err) => {
       toast.error(err.data?.code)
