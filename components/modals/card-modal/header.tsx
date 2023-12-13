@@ -13,29 +13,26 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { trpc } from '@/trpc/client'
 import { CardWithList } from '@/types'
-import { useCardModal } from '@/hooks/use-card-modal'
 
 type HeaderProps = {
-  refetchCard: any
   data: CardWithList
+  refetchCard: any
+  refetchLists: any
 }
 
-export function Header({ data, refetchCard }: HeaderProps) {
+export function Header({ data, refetchCard, refetchLists }: HeaderProps) {
   const params = useParams()
-  const { refetchLists } = useCardModal()
 
   const inputRef = useRef<ElementRef<'input'>>(null)
 
   const formSchema = z.object({
     title: z.string(),
-    description: z.string(),
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: data.title,
-      description: data.description ?? '',
     },
   })
 
@@ -56,7 +53,7 @@ export function Header({ data, refetchCard }: HeaderProps) {
   }
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const { title, description } = values
+    const { title } = values
     if (data.title === title) {
       return
     }
@@ -65,7 +62,6 @@ export function Header({ data, refetchCard }: HeaderProps) {
       id: data.id,
       boardId: params.boardId as string,
       title,
-      description: 'hello',
     })
   }
 

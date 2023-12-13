@@ -563,13 +563,20 @@ export const appRouter = router({
       z.object({
         id: z.string(),
         boardId: z.string(),
-        title: z.string().min(3, { message: 'Title is too short.' }),
+        title: z
+          .string({
+            required_error: 'Title is required',
+            invalid_type_error: 'Title is required',
+          })
+          .min(3, { message: 'Title is too short.' })
+          .optional(),
         description: z
           .string({
             required_error: 'Description is required',
             invalid_type_error: 'Description is required',
           })
-          .min(3, { message: 'Description is too short.' }),
+          .min(3, { message: 'Description is too short.' })
+          .optional(),
       })
     )
     .mutation(async ({ input }) => {
