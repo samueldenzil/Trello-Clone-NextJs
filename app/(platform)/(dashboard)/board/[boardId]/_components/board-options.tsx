@@ -15,7 +15,7 @@ type BoardOptionsProps = {
 export function BoardOptions({ id }: BoardOptionsProps) {
   const router = useRouter()
 
-  const { mutate, isLoading } = trpc.deleteBoard.useMutation({
+  const { mutate, isLoading } = trpc.board.deleteBoard.useMutation({
     onSuccess: ({ orgId }) => {
       router.push(`/organization/${orgId}`)
     },

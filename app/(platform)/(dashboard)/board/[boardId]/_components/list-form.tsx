@@ -55,7 +55,7 @@ export function ListForm({ refetchLists }: ListFormProps) {
     },
   })
 
-  const { mutate, isLoading } = trpc.createList.useMutation({
+  const { mutate, isLoading } = trpc.list.createList.useMutation({
     onSuccess: (list) => {
       toast.success(`List "${list.title}" created`)
       disableEditing()

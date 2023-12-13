@@ -39,7 +39,7 @@ export function FormPopover({
     resolver: zodResolver(CreateBoardValidator),
   })
 
-  const { mutate, isLoading } = trpc.createBoard.useMutation({
+  const { mutate, isLoading } = trpc.board.createBoard.useMutation({
     onSuccess: ({ board }) => {
       toast.success('Board created!')
       closeRef.current?.click()

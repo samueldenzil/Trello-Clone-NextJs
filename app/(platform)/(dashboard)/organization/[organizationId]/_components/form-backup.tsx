@@ -21,7 +21,7 @@ export function FormBackup() {
     },
   })
 
-  const { data, mutate } = trpc.createBoard.useMutation({
+  const { data, mutate } = trpc.board.createBoard.useMutation({
     onError: (error) => {
       console.log(error.data)
     },

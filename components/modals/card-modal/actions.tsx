@@ -17,7 +17,7 @@ export function Actions({ data, refetchLists }: ActionsProps) {
   const params = useParams()
   const { onClose } = useCardModal()
 
-  const { mutate: mutateCopyCard, isLoading: isLoadingCopyCard } = trpc.copyCard.useMutation({
+  const { mutate: mutateCopyCard, isLoading: isLoadingCopyCard } = trpc.card.copyCard.useMutation({
     onSuccess: ({ card }) => {
       toast.success(`Card "${card.title}" copied`)
       refetchLists()
@@ -28,16 +28,17 @@ export function Actions({ data, refetchLists }: ActionsProps) {
     },
   })
 
-  const { mutate: mutateDeleteCard, isLoading: isLoadingDeleteCard } = trpc.deleteCard.useMutation({
-    onSuccess: ({ card }) => {
-      toast.success(`Card "${card.title}" deleted`)
-      refetchLists()
-      onClose()
-    },
-    onError: (err) => {
-      toast.error(err.data?.code)
-    },
-  })
+  const { mutate: mutateDeleteCard, isLoading: isLoadingDeleteCard } =
+    trpc.card.deleteCard.useMutation({
+      onSuccess: ({ card }) => {
+        toast.success(`Card "${card.title}" deleted`)
+        refetchLists()
+        onClose()
+      },
+      onError: (err) => {
+        toast.error(err.data?.code)
+      },
+    })
 
   const onCopy = () => {
     mutateCopyCard({ id: data.id, boardId: params.boardId as string })

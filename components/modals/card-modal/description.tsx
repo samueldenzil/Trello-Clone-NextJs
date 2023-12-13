@@ -44,7 +44,7 @@ export function Description({
     },
   })
 
-  const { mutate, isLoading } = trpc.updateCard.useMutation({
+  const { mutate, isLoading } = trpc.card.updateCard.useMutation({
     onSuccess: ({ card }) => {
       toast.success(`Card "${card.title} updated"`)
       disableEditing()

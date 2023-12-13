@@ -21,7 +21,7 @@ export function BoardTitleForm({ initialData }: BoardTitleFormProps) {
 
   const [isEditing, setIsEditing] = useState(false)
 
-  const { data, refetch } = trpc.getBoardById.useQuery(
+  const { data, refetch } = trpc.board.getBoardById.useQuery(
     { id: initialData.id },
     {
       initialData: {
@@ -32,7 +32,7 @@ export function BoardTitleForm({ initialData }: BoardTitleFormProps) {
     }
   )
 
-  const { mutate, isLoading } = trpc.updateBoardTitle.useMutation({
+  const { mutate, isLoading } = trpc.board.updateBoard.useMutation({
     onSuccess: (data) => {
       toast.success(`Board "${data.title}" updated!`)
       document.title = `${data.title} | Taskify`

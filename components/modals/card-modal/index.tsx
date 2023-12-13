@@ -9,7 +9,7 @@ import { Header } from './header'
 export function CardModal() {
   const { isOpen, onClose, onOpen, id, refetchLists } = useCardModal()
 
-  const { data: cardData, refetch: refetchCard } = trpc.getCard.useQuery({
+  const { data: cardData, refetch: refetchCard } = trpc.card.getCard.useQuery({
     id: id ?? '',
   })
 

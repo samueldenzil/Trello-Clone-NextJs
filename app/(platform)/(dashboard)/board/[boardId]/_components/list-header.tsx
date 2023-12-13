@@ -50,7 +50,7 @@ export function ListHeader({ data, refetchLists, onAddCard }: ListHeaderProps) {
     },
   })
 
-  const { mutate, isLoading } = trpc.updateList.useMutation({
+  const { mutate, isLoading } = trpc.list.updateList.useMutation({
     onSuccess: (list) => {
       toast.success(`Renamed to "${list.title}"`)
       form.setValue('title', list.title)

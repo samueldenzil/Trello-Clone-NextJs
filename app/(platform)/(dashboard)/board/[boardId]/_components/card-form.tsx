@@ -39,7 +39,7 @@ export const CardForm = forwardRef<HTMLTextAreaElement, CardFormProps>(
       },
     })
 
-    const { mutate, isLoading } = trpc.createCard.useMutation({
+    const { mutate, isLoading } = trpc.card.createCard.useMutation({
       onSuccess: ({ card }) => {
         toast.success(`Card "${card.title}" created`)
         form.reset()

@@ -37,7 +37,7 @@ export function Header({ data, refetchCard, refetchLists, refetchAuditLogs }: He
     },
   })
 
-  const { mutate } = trpc.updateCard.useMutation({
+  const { mutate } = trpc.card.updateCard.useMutation({
     onSuccess: ({ card }) => {
       toast.success(`Renamed to "${card.title}"`)
       form.setValue('title', card.title)

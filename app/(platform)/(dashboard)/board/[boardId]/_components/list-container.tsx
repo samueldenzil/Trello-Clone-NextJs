@@ -23,7 +23,7 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number) {
 }
 
 export function ListContainer({ boardId, initialData }: ListContainerProps) {
-  const { data, refetch: refetchLists } = trpc.getLists.useQuery(
+  const { data, refetch: refetchLists } = trpc.list.getLists.useQuery(
     { boardId },
     {
       initialData: initialData as any,
@@ -36,7 +36,7 @@ export function ListContainer({ boardId, initialData }: ListContainerProps) {
     setOrderedData(data)
   }, [data])
 
-  const { mutate: mutateUpdateListOrder } = trpc.updateListOrder.useMutation({
+  const { mutate: mutateUpdateListOrder } = trpc.list.updateListOrder.useMutation({
     onSuccess: () => {
       toast.success('List reordered')
       refetchLists()
@@ -46,7 +46,7 @@ export function ListContainer({ boardId, initialData }: ListContainerProps) {
     },
   })
 
-  const { mutate: mutateUpdateCardOrder } = trpc.updateCardOrder.useMutation({
+  const { mutate: mutateUpdateCardOrder } = trpc.card.updateCardOrder.useMutation({
     onSuccess: () => {
       toast.success('Card reordered')
       refetchLists()

@@ -19,7 +19,7 @@ type ListOptionsProps = {
 export function ListOptions({ data, refetchLists, onAddCart }: ListOptionsProps) {
   const closeRef = useRef<ElementRef<'button'>>(null)
 
-  const { mutate: mutateCopy, isLoading: isLoadingCopy } = trpc.copyList.useMutation({
+  const { mutate: mutateCopy, isLoading: isLoadingCopy } = trpc.list.copyList.useMutation({
     onSuccess: ({ list }) => {
       toast.success(`List "${list.title}" copied`)
       closeRef.current?.click()
@@ -30,7 +30,7 @@ export function ListOptions({ data, refetchLists, onAddCart }: ListOptionsProps)
     },
   })
 
-  const { mutate: mutateDelete, isLoading: isLoadingDelete } = trpc.deleteList.useMutation({
+  const { mutate: mutateDelete, isLoading: isLoadingDelete } = trpc.list.deleteList.useMutation({
     onSuccess: (list) => {
       toast.success(`List "${list.title}" deleted`)
       closeRef.current?.click()
