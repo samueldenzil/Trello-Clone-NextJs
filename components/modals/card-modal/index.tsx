@@ -1,6 +1,7 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useCardModal } from '@/hooks/use-card-modal'
 import { trpc } from '@/trpc/client'
+import { Actions } from './actions'
 import { Description } from './description'
 import { Header } from './header'
 
@@ -33,6 +34,11 @@ export function CardModal() {
               )}
             </div>
           </div>
+          {!cardData ? (
+            <Actions.Skeleton />
+          ) : (
+            <Actions data={cardData as any} refetchLists={refetchLists} />
+          )}
         </div>
       </DialogContent>
     </Dialog>

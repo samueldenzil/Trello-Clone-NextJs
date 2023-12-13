@@ -610,6 +610,99 @@ export const appRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
       }
     }),
+
+  copyCard: publicProcedure
+    .input(z.object({ id: z.string(), boardId: z.string() }))
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { id, boardId } = input
+
+      try {
+        const cardToCopy = await prisma.card.findUnique({
+          where: {
+            id,
+            list: {
+              boardId,
+              board: {
+                orgId,
+              },
+            },
+          },
+        })
+
+        if (!cardToCopy) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Card not found' })
+        }
+
+        const lastCard = await prisma.card.findFirst({
+          where: {
+            listId: cardToCopy.listId,
+            list: {
+              boardId,
+              board: {
+                orgId,
+              },
+            },
+          },
+          orderBy: {
+            order: 'desc',
+          },
+          select: {
+            order: true,
+          },
+        })
+
+        const newOrder = lastCard ? lastCard.order + 1 : 1
+
+        const card = await prisma.card.create({
+          data: {
+            title: `${cardToCopy.title} - Copy`,
+            description: cardToCopy.description,
+            order: newOrder,
+            listId: cardToCopy.listId,
+          },
+        })
+
+        return { card }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
+
+  deleteCard: publicProcedure
+    .input(z.object({ id: z.string(), boardId: z.string() }))
+    .mutation(async ({ input }) => {
+      const { userId, orgId } = auth()
+
+      if (!userId || !orgId) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      const { id, boardId } = input
+
+      try {
+        const card = await prisma.card.delete({
+          where: {
+            id,
+            list: {
+              boardId,
+              board: {
+                orgId,
+              },
+            },
+          },
+        })
+
+        return { card }
+      } catch (error) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+      }
+    }),
 })
 
 // export type definition of API
