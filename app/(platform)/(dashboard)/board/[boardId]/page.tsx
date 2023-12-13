@@ -32,7 +32,7 @@ export default async function BoardIdPage({ params }: { params: { boardId: strin
 
   return (
     <div className="w-full overflow-x-auto p-4">
-      <ListContainer boardId={params.boardId} data={list} />
+      <ListContainer boardId={params.boardId} initialData={list} />
     </div>
   )
 }

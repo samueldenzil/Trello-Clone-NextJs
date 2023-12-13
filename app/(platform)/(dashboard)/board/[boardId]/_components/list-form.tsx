@@ -15,8 +15,11 @@ import { Input } from '@/components/ui/input'
 import { trpc } from '@/trpc/client'
 import ListWrapper from './list-wrapper'
 
-export function ListForm() {
-  const router = useRouter()
+type ListFormProps = {
+  refetchLists: any
+}
+
+export function ListForm({ refetchLists }: ListFormProps) {
   const params = useParams()
 
   const formRef = useRef<ElementRef<'form'>>(null)
@@ -57,7 +60,7 @@ export function ListForm() {
       toast.success(`List "${list.title}" created`)
       disableEditing()
       form.reset()
-      router.refresh()
+      refetchLists()
     },
     onError: (err) => {
       toast.error(err.message)

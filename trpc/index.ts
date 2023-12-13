@@ -185,6 +185,41 @@ export const appRouter = router({
       }
     }),
 
+  getLists: publicProcedure.input(z.object({ boardId: z.string() })).query(async ({ input }) => {
+    const { userId, orgId } = auth()
+
+    if (!userId || !orgId) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' })
+    }
+
+    const { boardId } = input
+
+    try {
+      const lists = await prisma.list.findMany({
+        where: {
+          boardId,
+          board: {
+            orgId,
+          },
+        },
+        include: {
+          cards: {
+            orderBy: {
+              order: 'asc',
+            },
+          },
+        },
+        orderBy: {
+          order: 'asc',
+        },
+      })
+
+      return lists
+    } catch (error) {
+      throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+    }
+  }),
+
   updateList: publicProcedure
     .input(
       z.object({

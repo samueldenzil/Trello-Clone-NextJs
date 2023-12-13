@@ -11,7 +11,7 @@ import { ListItem } from './list-item'
 
 type ListContainerProps = {
   boardId: string
-  data: ListWithCards[]
+  initialData: ListWithCards[]
 }
 
 function reorder<T>(list: T[], startIndex: number, endIndex: number) {
@@ -22,7 +22,14 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number) {
   return result
 }
 
-export function ListContainer({ boardId, data }: ListContainerProps) {
+export function ListContainer({ boardId, initialData }: ListContainerProps) {
+  const { data, refetch: refetchLists } = trpc.getLists.useQuery(
+    { boardId },
+    {
+      initialData: initialData as any,
+    }
+  )
+
   const [orderedData, setOrderedData] = useState(data)
 
   useEffect(() => {
@@ -32,6 +39,7 @@ export function ListContainer({ boardId, data }: ListContainerProps) {
   const { mutate: mutateUpdateListOrder } = trpc.updateListOrder.useMutation({
     onSuccess: () => {
       toast.success('List reordered')
+      refetchLists()
     },
     onError: (err) => {
       toast.error(err.data?.code)
@@ -41,6 +49,7 @@ export function ListContainer({ boardId, data }: ListContainerProps) {
   const { mutate: mutateUpdateCardOrder } = trpc.updateCardOrder.useMutation({
     onSuccess: () => {
       toast.success('Card reordered')
+      refetchLists()
     },
     onError: (err) => {
       toast.error(err.data?.code)
@@ -137,10 +146,15 @@ export function ListContainer({ boardId, data }: ListContainerProps) {
         {(provided) => (
           <ol {...provided.droppableProps} ref={provided.innerRef} className="flex h-full gap-x-3">
             {orderedData.map((list, index) => (
-              <ListItem data={list} index={index} key={list.id} />
+              <ListItem
+                data={list as any}
+                index={index}
+                refetchLists={refetchLists}
+                key={list.id}
+              />
             ))}
             {provided.placeholder}
-            <ListForm />
+            <ListForm refetchLists={refetchLists} />
             <div className="w-1 flex-shrink-0" aria-hidden="true" />
           </ol>
         )}

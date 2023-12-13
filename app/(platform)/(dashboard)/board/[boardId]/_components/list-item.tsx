@@ -12,9 +12,10 @@ import { ListHeader } from './list-header'
 type ListItemProps = {
   data: ListWithCards
   index: number
+  refetchLists: any
 }
 
-export function ListItem({ data, index }: ListItemProps) {
+export function ListItem({ data, index, refetchLists }: ListItemProps) {
   const textAreaRef = useRef<ElementRef<'textarea'>>(null)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -42,7 +43,7 @@ export function ListItem({ data, index }: ListItemProps) {
             {...provided.dragHandleProps}
             className="w-full rounded-md bg-[#f1f2f4] pb-2 shadow-md"
           >
-            <ListHeader data={data} onAddCard={enableEditing} />
+            <ListHeader data={data} onAddCard={enableEditing} refetchLists={refetchLists} />
             <Droppable droppableId={data.id} type="card">
               {(provided) => (
                 <ol
@@ -65,6 +66,7 @@ export function ListItem({ data, index }: ListItemProps) {
               isEditing={isEditing}
               enableEditing={enableEditing}
               disableEditing={disableEditing}
+              refetchLists={refetchLists}
             />
           </div>
         </li>

@@ -17,15 +17,15 @@ import { trpc } from '@/trpc/client'
 type CardFormProps = {
   listId: string
   isEditing: boolean
+  refetchLists: any
   enableEditing: () => void
   disableEditing: () => void
 }
 
 export const CardForm = forwardRef<HTMLTextAreaElement, CardFormProps>(
-  ({ listId, isEditing, enableEditing, disableEditing }, ref) => {
+  ({ listId, isEditing, refetchLists, enableEditing, disableEditing }, ref) => {
     const formRef = useRef<ElementRef<'form'>>(null)
 
-    const router = useRouter()
     const params = useParams()
 
     const formSchema = z.object({
@@ -44,7 +44,7 @@ export const CardForm = forwardRef<HTMLTextAreaElement, CardFormProps>(
         toast.success(`Card "${card.title}" created`)
         form.reset()
         disableEditing()
-        router.refresh()
+        refetchLists()
       },
       onError: (err) => {
         toast.error(err.message)

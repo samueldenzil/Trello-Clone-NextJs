@@ -13,10 +13,11 @@ import { ListOptions } from './list-options'
 
 type ListHeaderProps = {
   data: List
+  refetchLists: any
   onAddCard: () => void
 }
 
-export function ListHeader({ data, onAddCard }: ListHeaderProps) {
+export function ListHeader({ data, refetchLists, onAddCard }: ListHeaderProps) {
   const formRef = useRef<ElementRef<'form'>>(null)
   const inputRef = useRef<ElementRef<'input'>>(null)
 
@@ -54,6 +55,7 @@ export function ListHeader({ data, onAddCard }: ListHeaderProps) {
       toast.success(`Renamed to "${list.title}"`)
       form.setValue('title', list.title)
       disableEditing()
+      refetchLists()
     },
     onError: (err) => {
       toast.error(err.message)
@@ -65,7 +67,6 @@ export function ListHeader({ data, onAddCard }: ListHeaderProps) {
     if (title === data.title) {
       return disableEditing()
     }
-    // console.log(values)
 
     mutate({ boardId, id, title })
   }
@@ -117,7 +118,7 @@ export function ListHeader({ data, onAddCard }: ListHeaderProps) {
         </div>
       )}
 
-      <ListOptions data={data} onAddCart={onAddCard} />
+      <ListOptions data={data} onAddCart={onAddCard} refetchLists={refetchLists} />
     </div>
   )
 }

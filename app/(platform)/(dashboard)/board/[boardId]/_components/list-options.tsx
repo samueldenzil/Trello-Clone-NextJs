@@ -2,7 +2,6 @@
 
 import { List } from '@prisma/client'
 import { MoreHorizontal, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { ElementRef, useRef } from 'react'
 import { toast } from 'sonner'
 
@@ -13,19 +12,18 @@ import { trpc } from '@/trpc/client'
 
 type ListOptionsProps = {
   data: List
+  refetchLists: any
   onAddCart: () => void
 }
 
-export function ListOptions({ data, onAddCart }: ListOptionsProps) {
+export function ListOptions({ data, refetchLists, onAddCart }: ListOptionsProps) {
   const closeRef = useRef<ElementRef<'button'>>(null)
-
-  const router = useRouter()
 
   const { mutate: mutateCopy, isLoading: isLoadingCopy } = trpc.copyList.useMutation({
     onSuccess: ({ list }) => {
       toast.success(`List "${list.title}" copied`)
       closeRef.current?.click()
-      router.refresh()
+      refetchLists()
     },
     onError: (err) => {
       toast.error(err.message)
@@ -36,7 +34,7 @@ export function ListOptions({ data, onAddCart }: ListOptionsProps) {
     onSuccess: (list) => {
       toast.success(`List "${list.title}" deleted`)
       closeRef.current?.click()
-      router.refresh()
+      refetchLists()
     },
     onError: (err) => {
       toast.error(err.message)
