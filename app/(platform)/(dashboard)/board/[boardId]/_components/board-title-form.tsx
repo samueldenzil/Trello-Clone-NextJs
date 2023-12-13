@@ -4,7 +4,7 @@ import { Board } from '@prisma/client'
 import { ElementRef, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import * as z from 'zod'
+import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
@@ -12,17 +12,39 @@ import { Input } from '@/components/ui/input'
 import { trpc } from '@/trpc/client'
 
 type BoardTitleFormProps = {
-  data: Board
+  initialData: Board
 }
 
-export function BoardTitleForm({ data }: BoardTitleFormProps) {
+export function BoardTitleForm({ initialData }: BoardTitleFormProps) {
   const formRef = useRef<ElementRef<'form'>>(null)
   const inputRef = useRef<ElementRef<'input'>>(null)
 
   const [isEditing, setIsEditing] = useState(false)
 
+  const { data, refetch } = trpc.getBoardById.useQuery(
+    { id: initialData.id },
+    {
+      initialData: {
+        ...initialData,
+        createdAt: initialData.createdAt.toISOString(),
+        updatedAt: initialData.updatedAt.toISOString(),
+      },
+    }
+  )
+
+  const { mutate, isLoading } = trpc.updateBoardTitle.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Board "${data.title}" updated!`)
+      document.title = `${data.title} | Taskify`
+      disableEditing()
+      refetch()
+    },
+    onError: (err) => {
+      toast.error(err.message)
+    },
+  })
+
   const enableEditing = () => {
-    // TODO: focus inputs
     setIsEditing(true)
     setTimeout(() => {
       inputRef.current?.focus()
@@ -34,27 +56,29 @@ export function BoardTitleForm({ data }: BoardTitleFormProps) {
     setIsEditing(false)
   }
 
-  const form = useForm<Board>({
-    defaultValues: data,
+  const formSchema = z.object({
+    id: z.string(),
+    title: z.string().min(3, { message: 'Title is too short.' }),
   })
 
-  const { mutate, isLoading } = trpc.updateBoardTitle.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Board "${data.title}" updated!`)
-      document.title = `${data.title} | Taskify`
-      disableEditing()
-    },
-    onError: (err) => {
-      toast.error(err.message)
+  const form = useForm<z.infer<typeof formSchema>>({
+    defaultValues: {
+      id: data?.id,
+      title: data?.title,
     },
   })
 
-  function onSubmit(values: Board) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    if (data?.title === values.title) {
+      return
+    }
+
     mutate({ id: values.id, title: values.title })
   }
 
   const onBlur = () => {
     formRef.current?.requestSubmit()
+    setIsEditing(false)
   }
 
   if (isEditing) {
@@ -70,9 +94,6 @@ export function BoardTitleForm({ data }: BoardTitleFormProps) {
             name="title"
             render={({ field }) => (
               <FormItem>
-                {/* <Label className="font-semibold text-neutral-700" htmlFor={field.name}>
-                  Board Title
-                </Label> */}
                 <FormControl>
                   <Input
                     {...field}

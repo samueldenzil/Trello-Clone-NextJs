@@ -7,6 +7,29 @@ import { CreateBoardValidator } from '@/lib/validators/create-board-validator'
 import { publicProcedure, router } from './trpc'
 
 export const appRouter = router({
+  getBoardById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
+    const { userId, orgId } = auth()
+
+    if (!userId || !orgId) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' })
+    }
+
+    const { id } = input
+
+    try {
+      const board = await prisma.board.findUnique({
+        where: {
+          id,
+          orgId,
+        },
+      })
+
+      return board
+    } catch (error) {
+      throw new TRPCError({ code: 'BAD_REQUEST', message: `Something went wrong - ${error}` })
+    }
+  }),
+
   createBoard: publicProcedure.input(CreateBoardValidator).mutation(async ({ input }) => {
     const { userId, orgId } = auth()
 
