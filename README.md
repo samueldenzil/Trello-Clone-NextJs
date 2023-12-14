@@ -6,6 +6,14 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ![Landing Page Screenshot](documentation/landing-page-screenshot.jpg 'Landing Page Screenshot')
 
+![Landing Page Screenshot](documentation/organization-id-page-screenshot.jpg 'Organization Page Screenshot')
+
+![Landing Page Screenshot](documentation/board-id-page-screenshot.jpg 'Board Page Screenshot')
+
+![Landing Page Screenshot](documentation/card-id-modal-screenshot.jpg 'Card Modal Screenshot')
+
+![Landing Page Screenshot](documentation/pro-modal-screenshot.jpg 'Pro Modal Screenshot')``
+
 ## Getting Started
 
 First, run the development server:
