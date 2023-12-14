@@ -1,6 +1,6 @@
 # Trello Clone
 
-This is a Fullstack Discord Clone with Next.js 14, React, tRPC, Tanstack Query, Prisma, Tailwind, PostgreSQL.
+This is a Fullstack Trello Clone with Next.js 14, React, tRPC, Tanstack Query, Prisma, Tailwind, PostgreSQL.
 
 ## Screenshot(s)
 
