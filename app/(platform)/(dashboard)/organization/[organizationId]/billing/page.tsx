@@ -1,20 +1,16 @@
-import { Suspense } from 'react'
-
 import { Separator } from '@/components/ui/separator'
 import { checkSubscription } from '@/lib/subscription'
 import { Info } from '../_components/info'
-import { ActivityList } from './_components/activity-list'
+import { SubscriptionButton } from './_components/subscription-button'
 
-export default async function ActivityPage() {
+export default async function BillingPage() {
   const isPro = await checkSubscription()
 
   return (
     <div className="w-full">
       <Info isPro={isPro} />
       <Separator className="my-2" />
-      <Suspense fallback={<ActivityList.Skeleton />}>
-        <ActivityList />
-      </Suspense>
+      <SubscriptionButton isPro={isPro} />
     </div>
   )
 }

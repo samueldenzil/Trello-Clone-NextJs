@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useProModal } from '@/hooks/use-pro-modal'
 import {
   CreateBoardValidator,
   TCreateBoardValidator,
@@ -32,6 +33,7 @@ export function FormPopover({
   side = 'bottom',
   sideOffset = 0,
 }: FormPopoverProps) {
+  const { onOpen } = useProModal()
   const router = useRouter()
   const closeRef = useRef<ElementRef<'button'>>(null)
 
@@ -48,6 +50,7 @@ export function FormPopover({
     },
     onError: (err) => {
       toast.error(err.message)
+      onOpen()
     },
   })
 
