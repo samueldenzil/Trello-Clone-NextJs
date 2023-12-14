@@ -13,7 +13,7 @@ export function Navbar() {
             <Link href="/sign-in">Login</Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href="/sign-up">Use Taskify for free</Link>
+            <Link href="/sign-up">Try Taskify for free</Link>
           </Button>
         </div>
       </div>
