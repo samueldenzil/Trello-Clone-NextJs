@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { createAuditLog } from '@/lib/create-audit-log'
 import prisma from '@/lib/db'
+import { decreaseAvailableCount, hasAvailableCount, incrementAvailableCount } from '@/lib/org-limit'
 import { CreateBoardValidator } from '@/lib/validators/create-board-validator'
 import { publicProcedure, router } from '../trpc'
 
@@ -39,6 +40,15 @@ export const boardRouter = router({
       throw new TRPCError({ code: 'UNAUTHORIZED' })
     }
 
+    const canCreate = await hasAvailableCount()
+
+    if (!canCreate) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You have reached your limit of free boards. Please upgrade to create more.',
+      })
+    }
+
     const { title, image } = input
     const [imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName] = image.split('|')
 
@@ -63,6 +73,8 @@ export const boardRouter = router({
           imageUserName,
         },
       })
+
+      await incrementAvailableCount()
 
       await createAuditLog({
         entityId: board.id,
@@ -140,6 +152,8 @@ export const boardRouter = router({
           orgId,
         },
       })
+
+      await decreaseAvailableCount()
 
       await createAuditLog({
         entityId: board.id,
